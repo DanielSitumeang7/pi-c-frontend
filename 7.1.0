@@ -1,0 +1,22 @@
+yarn add v1.22.19
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved lockfile.
+success Saved 11 new dependencies.
+info Direct dependencies
+└─ react-redux@8.0.5
+info All dependencies
+├─ @babel/runtime@7.21.0
+├─ @types/hoist-non-react-statics@3.3.1
+├─ @types/prop-types@15.7.5
+├─ @types/react@18.0.35
+├─ @types/scheduler@0.16.3
+├─ @types/use-sync-external-store@0.0.3
+├─ csstype@3.1.2
+├─ hoist-non-react-statics@3.3.2
+├─ react-redux@8.0.5
+├─ regenerator-runtime@0.13.11
+└─ use-sync-external-store@1.2.0
+Done in 5.31s.

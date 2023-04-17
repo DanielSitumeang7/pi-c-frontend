@@ -1,0 +1,41 @@
+.cardHome {
+    max-height: "30rem";
+}
+
+.skeletonloader {
+    background-color: #c1c1c1;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonloader::before {
+    content: "";
+    background-image: linear-gradient(to right, transparent, #e3e3e3, transparent);
+    background-size: 400% 400%;
+    animation: loading 1.2s ease-in-out infinite;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    transform: translatex(-100%);
+}
+
+.skeletonimg {
+    min-height: 200px;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 999;
+}

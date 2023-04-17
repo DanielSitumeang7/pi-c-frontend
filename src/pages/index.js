@@ -1,124 +1,244 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import Image from "next/image";
+import pic from "../../asset/pic.png";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    const [formLogin, setFormLogin] = useState({ email: "", password: "" });
+    const [formRegister, setFormRegister] = useState({ name: "", email: "", password: "", c_password: "" });
+    const [loader, setLoader] = useState(true);
+    const [message, setMessage] = useState("");
+    const [available, setAvailable] = useState(true);
+    const [regisHidden, setRegisHidden] = useState(true);
+    const [buttonDisable, setButtonDisable] = useState({ buttonLogin: true, buttonRegister: false });
+    const [banner, setBanner] = useState("/pic.png");
+    const [buttonActive, setButtonActive] = useState(
+        {
+            buttonLogin: "btn btn-primary rounded-pill mx-2",
+            buttonRegister: "btn btn-outline-primary rounded-pill mx-2"
+        }
+    );
+    const [formHidden, setFormHidden] = useState({ formLogin: false, formRegister: true });
+
+    const router = useRouter();
+    const hanndleClick = (e) => {
+        if (available == true) {
+            setAvailable(false);
+        }
+        else {
+            setAvailable(true);
+        }
+    }
+
+    const clickCekRegis = (e) => {
+        if (regisHidden == true) {
+            setRegisHidden(false);
+        }
+        else {
+            setRegisHidden(true);
+        }
+    }
+
+    const handleFormLogin = (e) => {
+        setButtonDisable({ buttonLogin: true, buttonRegister: false });
+        setButtonActive(
+            {
+                buttonLogin: "btn btn-primary rounded-pill mx-2",
+                buttonRegister: "btn btn-outline-primary rounded-pill mx-2"
+            }
+        );
+        setFormHidden({ formLogin: false, formRegister: true });
+        setBanner("/pic.png");
+    }
+
+    const handleFormRegister = (e) => {
+        setButtonDisable({ buttonLogin: false, buttonRegister: true });
+        setButtonActive(
+            {
+                buttonLogin: "btn btn-outline-primary rounded-pill mx-2",
+                buttonRegister: "btn btn-primary rounded-pill mx-2"
+            }
+        );
+        setFormHidden({ formLogin: true, formRegister: false });
+        setBanner("/regis.png");
+    }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormLogin({ ...formLogin, [name]: value });
+    }
+
+    const handleRegister = (e) => {
+        const { name, value } = e.target;
+        setFormRegister({ ...formRegister, [name]: value });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setMessage("");
+
+        const res = await fetch("http://localhost:8000/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formLogin)
+        }).then(setLoader(false));
+
+        const data = await res.json();
+
+        if (data != null) {
+            // localStorage.setItem("token", data.success.token);
+            sessionStorage.setItem("token", data.success.token);
+            // localStorage.setItem("token_type", data.success.token_type);
+            sessionStorage.setItem("token_type", data.success.token_type);
+            sessionStorage.setItem("name", data.success.name);
+            if (data.error != null) {
+                setMessage(JSON.stringify(data.error));
+            }
+            if (data.success != null) {
+                setMessage(JSON.stringify(data.success));
+            }
+            console.log(data);
+            setLoader(true);
+            router.push("/posting");
+        }
+        else {
+            setMessage("Login gagal");
+            setLoader(true);
+        }
+
+    }
+
+    const handleRegisterSubmit = async (e) => {
+        e.preventDefault();
+        setMessage("");
+
+        const res = await fetch("http://localhost:8000/api/registrasi", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formRegister)
+        }).then(setLoader(false));
+
+        const data = await res.json();
+
+        if (data != null) {
+
+            if (data.error != null) {
+                setMessage(data.error.name);
+                setMessage(data.error.email);
+                setMessage(data.error.password);
+                setMessage(data.error.c_password);
+            }
+            if (data.success != null) {
+                setMessage(JSON.stringify(data.success));
+            }
+            console.log(data);
+            setLoader(true);
+        }
+        else {
+            setMessage("Register gagal");
+            setLoader(true);
+        }
+
+    }
+
+    return (
+        <div className="">
+            <title>Login</title>
+            <div className="container">
+                <div className="row py-5">
+                    <div className="col-3"></div>
+                    <div className="col-sm-6 col-12">
+                        <div className="bg-black rounded-2">
+                            <img src={banner} alt="Picture of the author" className="img-fluid rounded" />
+                            <center className="p-4">
+                                <div className="d-grid gap-2 d-md-block">
+                                    <button
+                                        className={buttonActive.buttonLogin}
+                                        type="button"
+                                        disabled={buttonDisable.buttonLogin}
+                                        onClick={handleFormLogin}
+                                    >
+                                        Login
+                                    </button>
+                                    <button
+                                        className={buttonActive.buttonRegister}
+                                        type="button"
+                                        disabled={buttonDisable.buttonRegister}
+                                        onClick={handleFormRegister}
+                                    >
+                                        Register
+                                    </button>
+                                </div>
+                            </center>
+                            <div className="alert alert-primary mx-3" role="alert">
+                                <div className="spinner-border text-primary" role="status" hidden={loader}>
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                {message}
+                            </div>
+                            <form className="bg-dark-subtle rounded-2" hidden={formHidden.formLogin} onSubmit={handleSubmit}>
+                                <div className="p-3">
+                                    <div className="mb-3">
+                                        <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
+                                        <input type="email" className="form-control" id="email" name="email" aria-describedby="emailHelp" value={formLogin.email} onChange={handleChange} />
+                                        <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
+                                        <input type="password" className="form-control" id="password" name="password" value={formLogin.password} onChange={handleChange} />
+                                    </div>
+                                    <div className="mb-3 form-check">
+                                        <input type="checkbox" className="form-check-input" id="exampleCheck1" onClick={hanndleClick} />
+                                        <label className="form-check-label" htmlFor="exampleCheck1">Check me out</label>
+                                    </div>
+                                    <div className="d-grid gap-2">
+                                        <button type="submit" className="btn btn-outline-primary rounded-pill" disabled={available}>Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <form className="bg-dark-subtle rounded-2" hidden={formHidden.formRegister} onSubmit={handleRegisterSubmit}>
+                                <div className="p-3">
+                                    <div className="mb-3">
+                                        <label htmlFor="name" className="form-label">Nama</label>
+                                        <input type="text" className="form-control" id="name" name="name" onChange={handleRegister} />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
+                                        <input type="email" className="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp" onChange={handleRegister} />
+                                        <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
+                                        <input type="password" name="password" className="form-control" id="exampleInputPassword1" onChange={handleRegister} />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="exampleInputPassword2" className="form-label">Confirm Password</label>
+                                        <input type="password" name="c_password" className="form-control" id="exampleInputPassword2" onChange={handleRegister} />
+                                    </div>
+                                    <div className="mb-3 form-check">
+                                        <input type="checkbox" className="form-check-input" id="exampleCheck1" onClick={clickCekRegis} />
+                                        <label className="form-check-label" htmlFor="exampleCheck1">Check me out</label>
+                                    </div>
+                                    <div className="d-grid gap-2">
+                                        <button type="submit" className="btn btn-outline-primary rounded-pill" hidden={regisHidden}>Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div className="col-3"></div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    )
 }
+
+// export async function getServerSideProps() {
+//     return {
+//         props: {}
+//     };
+// }
