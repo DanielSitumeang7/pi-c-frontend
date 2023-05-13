@@ -13,6 +13,10 @@ const Layout = ({ children }) => {
         }
     );
 
+    const clickNavigation = (link) => {
+        router.push(link);
+    }
+
     const handleNavbar = () => {
         if (router.pathname === "/posting") {
             setActivation({
@@ -28,6 +32,7 @@ const Layout = ({ children }) => {
         }
     }
 
+    // fungsi untuk keluar dari aplikasi
     const keluar = () => {
         Swal.fire({
             title: 'Apakah anda yakin?',
@@ -42,7 +47,9 @@ const Layout = ({ children }) => {
             cancelButtonColor: '#d33',
             confirmButtonColor: '#3085d6',
         }).then((result) => {
+            // jika tombol ya ditekan
             if (result.isConfirmed) {
+                // menghapus isi dari sessionStorage
                 sessionStorage.clear();
                 router.push("/");
             }
@@ -78,14 +85,14 @@ const Layout = ({ children }) => {
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
-                                <a className={activation.home} href="/posting">Home</a>
+                                <button type="" className={activation.home} onClick={() => clickNavigation('/posting')} >Home</button>
                             </li>
                             <li className="nav-item">
-                                <a className={activation.create_posting} href="/posting/createPosting">Create Posting</a>
+                                <button type="button" className={activation.create_posting} onClick={() => clickNavigation('/posting/createPosting')}>Create Posting</button>
                             </li>
                         </ul>
                         <div className="d-flex">
-                            <button className="btn btn-outline-seccondary" type="button" onClick={()=>keluar()}>logout</button>
+                            <button type="button" className="btn btn-outline-seccondary" onClick={()=>keluar()}>logout</button>
                         </div>
                     </div>
                 </div>

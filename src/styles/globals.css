@@ -1,27 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.swal2-popup {
+  background-color: #222 !important;
+  color: #fff !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.swal2-title {
+  color: #fff !important;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.swal2-content {
+  color: #ccc !important;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  background-color: #333 !important;
+  border-color: #333 !important;
+  color: #fff !important;
+}
+
+.swal2-confirm:hover,
+.swal2-cancel:hover {
+  background-color: #444 !important;
+  border-color: #444 !important;
 }

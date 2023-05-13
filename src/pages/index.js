@@ -11,7 +11,7 @@ export default function Home() {
     const [available, setAvailable] = useState(true);
     const [regisHidden, setRegisHidden] = useState(true);
     const [buttonDisable, setButtonDisable] = useState({ buttonLogin: true, buttonRegister: false });
-    const [banner, setBanner] = useState("/pic.png");
+    const [banner, setBanner] = useState("/pic.png"); // lokasi pic.png ada di folder public
     const [buttonActive, setButtonActive] = useState(
         {
             buttonLogin: "btn btn-primary rounded-pill mx-2",
@@ -21,6 +21,7 @@ export default function Home() {
     const [formHidden, setFormHidden] = useState({ formLogin: false, formRegister: true });
 
     const router = useRouter();
+
     const hanndleClick = (e) => {
         if (available == true) {
             setAvailable(false);
@@ -88,20 +89,20 @@ export default function Home() {
         const data = await res.json();
 
         if (data != null) {
-            // localStorage.setItem("token", data.success.token);
-            sessionStorage.setItem("token", data.success.token);
-            // localStorage.setItem("token_type", data.success.token_type);
-            sessionStorage.setItem("token_type", data.success.token_type);
-            sessionStorage.setItem("name", data.success.name);
             if (data.error != null) {
-                setMessage(JSON.stringify(data.error));
+                setMessage(data.error);
             }
             if (data.success != null) {
-                setMessage(JSON.stringify(data.success));
+                setMessage("Login berhasil");
+                // localStorage.setItem("token", data.success.token);
+                sessionStorage.setItem("token", data.success.token);
+                // localStorage.setItem("token_type", data.success.token_type);
+                sessionStorage.setItem("token_type", data.success.token_type);
+                sessionStorage.setItem("name", data.success.name);
+                router.push("/posting");
             }
             console.log(data);
             setLoader(true);
-            router.push("/posting");
         }
         else {
             setMessage("Login gagal");

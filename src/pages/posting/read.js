@@ -1,11 +1,36 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../components/layout";
+import 'react-quill/dist/quill.snow.css';
+import dynamic from 'next/dynamic';
+import Swal from 'sweetalert2';
+import '@sweetalert2/theme-dark/dark.scss';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 function read() {
     // mendefenisikan state untuk menampung data dari API
     const [posts, setPosts] = useState([]);
     const [konten, setKonten] = useState([]);
+    const [teksKonten, setTeksKonten] = useState(null);
+    const [judul, setJudul] = useState("");
+
+    // mendefinisikan state untuk text editor
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote', 'code-block'],
+        [{ 'header': 1 }, { 'header': 2 }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'script': 'sub' }, { 'script': 'super' }],
+        [{ 'indent': '-1' }, { 'indent': '+1' }],
+        [{ 'direction': 'rtl' }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'font': [] }],
+        [{ 'align': [] }],
+        ['clean']
+    ];
 
     // mendefinisikan state untuk animasi loading
     const [mounted, setMounted] = useState(false);
@@ -25,9 +50,71 @@ function read() {
         }
     }
 
+    // fungsi untuk memanggil popup konfirmasi penghapusan konten dengan sweetalert2
+    const konfirmasiHapusKonten = () => {
+        Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Anda akan menghapus konten ini!",
+            imageUrl:"/confirmation.png",
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: 'Custom image',
+            confirmButtonText: 'Ya, hapus!',
+            showCancelButton: true,
+            cancelButtonText: 'Tidak, batalkan!',
+            cancelButtonColor: '#d33',
+            confirmButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                hapusKonten(id);
+            }
+        });
+    }
+
+    // fungsi untuk menghapus konten
+    const hapusKonten = async (id) => {
+        const request = await fetch("http://localhost:8000/api/posts/" + id, {
+            method: "DELETE"
+        }).catch(err => console.log(err));
+        const response = await request.json();
+        console.log(response);
+        reouter.push("/posting");
+    }
+
     // fungsi untuk redirect ke halaman lain
     const selengkapnya = (id) => {
         reouter.push("/posting/read?id=" + id);
+    }
+
+    // fungsi untuk mengahndle perubahan pada text editor
+    const handleChangeContent = (e) => {
+        setTeksKonten(e);
+    }
+
+    const handleChangeTitle = (e) => {
+        setJudul(e.target.value);
+    }
+
+    // fungsi untuk mengirim data ke API
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('title', document.getElementById('title').value);
+        formData.append('content', teksKonten);
+        formData.append('image', document.getElementById('image').files[0]);
+        formData.append('_method', 'PUT');
+
+        console.log(formData);
+
+        const request = await fetch("http://localhost:8000/api/posts/"+id, {
+            method: "POST",
+            body: formData
+        }).catch(err => console.log(err));
+        
+        const response = await request.json();
+        console.log(response);
+        getData({ id });
     }
 
     // fungsi untuk mengambil data dari API
@@ -46,6 +133,8 @@ function read() {
         setTimeout(() => {
             setIsLoading(false);
         }, 1000);
+        setTeksKonten(objek.data.content);
+        setJudul(objek.data.title);
     }
 
     // fungsi untuk mengambil data dari API
@@ -61,8 +150,8 @@ function read() {
             }
         }).catch(err => console.log(err));
         const objek = await response.json();
-        console.log(objek.data);
         setKonten(objek.data);
+        console.log(objek.data);
     }
 
     // memanggil fungsi getData ketika id berubah
@@ -95,8 +184,8 @@ function read() {
                                             Action
                                         </button>
                                         <ul className={"dropdown-menu "}>
-                                            <li><button className="dropdown-item" type="button">Edit</button></li>
-                                            <li><button className="dropdown-item" type="button">Delete</button></li>
+                                            <li><button className="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#editModal">Edit</button></li>
+                                            <li><button className="dropdown-item" type="button" onClick={konfirmasiHapusKonten}>Delete</button></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -145,6 +234,34 @@ function read() {
                             </div>
                             <div className="card-body bg-dark-subtle rounded-4">
                                 <div className="card-text" dangerouslySetInnerHTML={{ __html: posts.content }}></div>
+                            </div>
+                        </div>
+                        <div className="modal fade" id="editModal" tabIndex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div className="modal-dialog modal-dialog-scrollable">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title" id="editModalLabel">Edit Post</h5>
+                                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <form className="p-3" onSubmit={handleSubmit}>
+                                            <div className="input-group mb-3">
+                                                <label className="input-group-text" forhtml="title">Title</label>
+                                                <input type="text" className="form-control" id="title" name="title" value={judul} onChange={handleChangeTitle} />
+                                            </div>
+                                            <div className="input-group mb-3">
+                                                <input type="file" className="form-control" name="image" id="image" />
+                                                {/* <label className="input-group-text" forhtml="inputGroupFile02">Upload</label> */}
+                                            </div>
+                                            <div className="mb-3">
+                                                <ReactQuill theme="snow" value={teksKonten} modules={{ toolbar: toolbarOptions }} onChange={handleChangeContent} />
+                                            </div>
+                                            <center>
+                                                <button type="submit" className="btn btn-outline-primary rounded-pill">Submit</button>
+                                            </center>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

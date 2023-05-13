@@ -1,6 +1,7 @@
 // import '@/styles/globals.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-quill/dist/quill.snow.css';
+import '../styles/globals.css';
 import App from 'next/app';
 
 class MyApp extends App {

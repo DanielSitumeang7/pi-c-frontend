@@ -6,10 +6,12 @@ import styles from '../../styles/Posting.module.css';
 function lamanPosting() {
     const router = useRouter();
     const [posting, setPosting] = useState([]);
+    const [message, setMessage] = useState("");
     const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [namaUser, setNamaUser] = useState();
 
+    // fungsi untuk memotong string
     function truncateString(str, maxLength) {
         if (str.length <= maxLength) {
             return str;
@@ -19,6 +21,7 @@ function lamanPosting() {
         }
     }
 
+    // fungsi untuk mengambil data posting
     const getData = async () => {
         const token = sessionStorage.getItem('token');
         const tokenType = sessionStorage.getItem('token_type');
@@ -32,12 +35,14 @@ function lamanPosting() {
         }).catch(err => console.log(err));
         const objek = await response.json();
         console.log(objek.data);
+        setMessage(objek.message);
         setPosting(objek.data);
         setTimeout(() => {
             setIsLoading(false);
         }, 1000);
     }
 
+    // fungsi untuk mengambil data user
     useEffect(() => {
         if (!mounted) {
             setMounted(true);
@@ -48,6 +53,7 @@ function lamanPosting() {
         }
     }, [mounted]);
 
+    // fungsi untuk mengarahkan ke laman baca posting
     const handleRedirect = (id) => {
         router.push('/posting/read?id=' + id);
     }
@@ -70,6 +76,11 @@ function lamanPosting() {
                                     <h4>
                                         <span className="badge bg-info">
                                             <cite title="Source Title">{namaUser}</cite>
+                                            <center>
+                                                <p className='text-white'>
+                                                    {message}
+                                                </p>
+                                            </center>
                                         </span>
                                     </h4>
                                 </figcaption>
@@ -105,7 +116,7 @@ function lamanPosting() {
                                         </div>
                                         <div className='card-footer'>
                                             <center>
-                                                <button className="btn btn-outline-primary rounded-pill" onClick={() => handleRedirect(post.id)}>Go somewhere</button>
+                                                <button className="btn btn-outline-primary rounded-pill" onClick={() => handleRedirect(post.id)}>Selengkapnya</button>
                                             </center>
                                         </div>
                                     </div>
